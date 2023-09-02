@@ -1,0 +1,12 @@
+go to console docker terminal
+type : apk add npm
+go to app/console folder: type:  npm install -g ember-cli pnpm
+open package.json and replace : "build": "pnpm run prebuild && ember build --environment=production --output=/usr/share/nginx/html",
+pnpm install
+pnpm build
+
+apk add nano
+nano /etc/nginx/conf.d/default.conf
+change 4200 to 4201
+nginx -s reload
+then go to our foler and pnpm start

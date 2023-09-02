@@ -1,0 +1,8 @@
+profile = "fleetbase"
+cluster = "flb-socket-common"
+task_definition = "flb-socket-common-app"
+container_name = "app"
+log_group = "ecs-tool"
+
+[deploy]
+services = ["app"]

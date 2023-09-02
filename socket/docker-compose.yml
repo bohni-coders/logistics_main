@@ -1,0 +1,14 @@
+version: "3.4"
+
+services:
+  application:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+          ENVIRONMENT: dev
+    ports:
+      - "38000:8000"
+    environment:
+      SOCKETCLUSTER_WORKERS: 10
+      SOCKETCLUSTER_BROKERS: 10

@@ -1,0 +1,43 @@
+image: docker:stable-git
+variables:
+  PROJECT: "flb-socket"
+  AWS_REGION: "ap-southeast-1"
+  DOCKER_BUILDKIT: 1 # for faster docker builds
+
+build_image:
+  stage: build
+  tags:
+    - docker
+  script:
+    - 'export VERSION="$(git describe --always --tags)" ENVIRONMENT="$(basename $CI_COMMIT_REF_NAME)"'
+    - 'docker build --build-arg ENVIRONMENT="${ENVIRONMENT}" -t ${PROJECT}-app:${VERSION} --target app .'
+
+deploy:
+  stage: deploy
+  only:
+    - /^deploy\/common$/
+  tags:
+    - docker
+  script:
+    - 'export VERSION="$(git describe --always --tags)" ENVIRONMENT="$(basename $CI_COMMIT_REF_NAME)"'
+    - |-
+        set -eu
+
+        wget https://github.com/springload/ecs-tool/releases/download/1.0.1/ecs-tool_1.0.1_linux_amd64.tar.gz -O /tmp/ecs-tool.tar.gz && tar -C /usr/bin -xvf /tmp/ecs-tool.tar.gz ecs-tool
+        REPOSITORY=$(ecs-tool ecr-endpoint)
+        eval $(ecs-tool ecr-login)
+
+        pids=""
+        for image in "${PROJECT}-app"; do
+          for tag in ${ENVIRONMENT}-${VERSION} ${ENVIRONMENT}-latest; do
+            docker tag ${image}:${VERSION} ${REPOSITORY}/${image}:${tag}
+            docker push ${REPOSITORY}/${image}:${tag} &
+            pids="${pids} $!"
+          done
+        done
+
+        for p in $pids; do
+          wait $p
+        done
+
+        ecs-tool -e "${ENVIRONMENT}" deploy --image_tag "${ENVIRONMENT}-${VERSION}"
