@@ -50,14 +50,14 @@ Router.map(function () {
             path: 'fleet-ops'
         });
 
-        this.mount('@fleetbase/storefront-engine', {
-            as: 'storefront',
-            path: 'storefront'
-        });
-
         this.mount('@fleetbase/iam-engine', {
             as: 'iam',
             path: 'iam'
+        });
+
+        this.mount('@fleetbase/storefront-engine', {
+            as: 'storefront',
+            path: 'storefront'
         });
     });
     this.route('install');
