@@ -28,6 +28,9 @@ export default class DashboardComponent extends Component {
 
         try {
             dashboardBuild = yield this.fetch.get(extension.fleetbase.dashboard, {}, { namespace: '' });
+            if(dashboardBuild.title == 'Fleet-Ops Metrics'){
+                dashboardBuild.title = 'Boni Logistics Metrics';
+            }
         } catch {
             return;
         }
